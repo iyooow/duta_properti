@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Property {
+  id          String     @id @default(uuid())
+  title       String?  
+  name        String
+  address     String
+  description String?  
+  price       Float
+  status      String     @default("AVAILABLE")
+  imageUrl    String?
+  schedules   Schedule[]
+  leases Lease[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Schedule {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  date        DateTime  // Pastikan baris ini ada
+  propertyId  String?
+  property    Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  status      String    @default("PENDING")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Lease {
+  id           String   @id @default(uuid())
+  tenantName   String   // Nama Penyewa
+  startDate    DateTime // Tanggal Mulai Sewa
+  endDate      DateTime // Tanggal Berakhir Sewa
+  rentAmount   Float    // Nilai/Harga Sewa
+  status       String   @default("ACTIVE") // Status: ACTIVE, EXPIRING_SOON, EXPIRED
+  notes        String?  // Catatan Tambahan / Dokumen Sewa
+  propertyId   String
+  property     Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model ChatMessage {
+  id        String   @id @default(uuid())
+  sender    String
+  message   String
+  createdAt DateTime @default(now())
+}
+
+model Agent {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
